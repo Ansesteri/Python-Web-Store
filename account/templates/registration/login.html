@@ -1,0 +1,28 @@
+{% extends "shop/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Log In" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Log In" %}</h2>
+{% if form.errors %}
+<p>
+   {% trans "Your username and password didn't match." %}
+   {% trans "Please try again." %}
+</p>
+{% else %}
+<p>
+   {% blocktrans %}
+   Please, use the following form to log in.
+   If you don't have an account
+   {% endblocktrans %}
+   <a href="{% url 'account:register' %}">{% trans "register here" %}</a>.
+</p>
+{% endif %}
+<form action="{% url 'account:login' %}" method="post">
+   {{ form.as_p }}
+   {% csrf_token %}
+   <input type="hidden" name="next" value="{{ next }}">
+   <p><input type="submit" value="{% trans 'Log in' %}"></p>
+</form>
+{% endblock %}
