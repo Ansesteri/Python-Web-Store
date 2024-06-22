@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Nastolkien{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <div class="container-fluid">
@@ -18,20 +20,26 @@
                 </a>
         
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                  <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-                  <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-                  <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
-                  <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                  <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+                  <li><a href="#" class="nav-link px-2 text-secondary">{% trans "Home" %}</a></li>
+                  <li><a href="#" class="nav-link px-2 text-white">{% trans "Features" %}</a></li>
+                  <li><a href="#" class="nav-link px-2 text-white">{% trans "Pricing" %}</a></li>
+                  <li><a href="#" class="nav-link px-2 text-white">{% trans "FAQs" %}</a></li>
+                  <li><a href="#" class="nav-link px-2 text-white">{% trans "About" %}</a></li>
                 </ul>
         
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-                  <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">
+                <form method="get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                  <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search" name="search">
                 </form>
         
                 <div class="text-end">
-                  <button type="button" class="btn btn-outline-light me-2">Login</button>
-                  <button type="button" class="btn btn-warning me-2">Sign-up</button>
+                  {% if request.user.is_authenticated %}
+                    <button type="button" class="btn btn-warning disabled me-2">{{ request.user.first_name|default:request.user.username }}</button>
+                    <a class="btn btn-outline-light me-2" href="{% url 'account:logout' %}">{% trans "Logout" %}</a>
+                  {% else %}
+                    <a class="btn btn-warning me-2" href="{% url 'account:register' %}">{% trans "Sign-up" %}</a>
+                    <a class="btn btn-outline-light me-2" href="{% url 'account:login' %}">{% trans "Login" %}</a>
+                  {% endif %}
+                  {% comment %} cart {% endcomment %}
                   <a class="btn btn-outline-light position-relative" href="{% url 'cart:cart_detail' %}">
                     <i class="bi bi-cart"></i>
                     {% with total_items=cart|length %}
@@ -42,20 +50,34 @@
                       {% endif %}
                     {% endwith %}
                   </a>
+                  {% comment %} language {% endcomment %}
+                  {% get_current_language as LANGUAGE_CODE %}
+                  {% get_available_languages as LANGUAGES %}
+                  {% get_language_info_list for LANGUAGES as languages %}
+                  <div class="d-inline-block ms-2">
+                    <form action="{% url 'set_language' %}" method="post">
+                      {% csrf_token %}
+                      {% for language in languages %}
+                        <button class="btn {% if language.code == LANGUAGE_CODE %}btn-outline-warning{% else %}btn-outline-light{% endif %}" name="language" value="{{ language.code }}">
+                          {{ language.code|upper }}
+                        </button>
+                      {% endfor %}
+                    </form>
+                  </div>  
                 </div>
               </div>
             </div>
           </header>
     </div>
     <div class="container">
-      <div class="row">
-          <div class="col-12">
-          {% block content %}
-              Store catalog.
-          {% endblock %}
-          </div>
-      </div>
-  </div>
+        <div class="row">
+            <div class="col-12">
+            {% block content %}
+                Store catalog.
+            {% endblock %}
+            </div>
+        </div>
+    </div>
     <div class="container">
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
           <p class="col-md-4 mb-0 text-body-secondary">© 2024 Company, Inc</p>
@@ -65,11 +87,11 @@
           </a>
       
           <ul class="nav col-md-4 justify-content-end">
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">{% trans "Home" %}</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">{% trans "Features" %}</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">{% trans "Pricing" %}</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">{% trans "FAQs" %}</a></li>
+            <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">{% trans "About" %}</a></li>
           </ul>
         </footer>
     </div>
